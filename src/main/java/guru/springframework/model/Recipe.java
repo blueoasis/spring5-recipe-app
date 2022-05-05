@@ -1,10 +1,13 @@
 package guru.springframework.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Data
 public class Recipe {
 
     @Id
@@ -20,23 +23,36 @@ public class Recipe {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
     private Set<Ingredient> ingredients = new HashSet<>();
 
-    private String description;
-    private Integer prepItem;
-    private Integer cookItem;
-    private Integer servings;
-    private String source;
-    private String url;
-    private String directions;
-
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    public Set<Ingredient> getIngredients() {
-        return ingredients;
+    @ManyToMany
+    @JoinTable(name = "recipe_category",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
+
+    public Long getId() {
+        return id;
     }
 
-    public void setIngredients(Set<Ingredient> ingredients) {
-        this.ingredients = ingredients;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    private String description;
+
+    @Lob
+    private String directions;
+    private Integer prepTime;
+    private Integer cookTime;
+
+    public Note getNote() {
+        return note;
+    }
+
+    public void setNote(Note note) {
+        this.note = note;
     }
 
     public Byte[] getImage() {
@@ -47,20 +63,28 @@ public class Recipe {
         this.image = image;
     }
 
-    public Note getNote() {
-        return note;
+    public Set<Ingredient> getIngredients() {
+        return ingredients;
     }
 
-    public void setNote(Note note) {
-        this.note = note;
+    public void setIngredients(Set<Ingredient> ingredients) {
+        this.ingredients = ingredients;
     }
 
-    public Long getId() {
-        return id;
+    public Difficulty getDifficulty() {
+        return difficulty;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
     }
 
     public String getDescription() {
@@ -71,44 +95,20 @@ public class Recipe {
         this.description = description;
     }
 
-    public Integer getPrepItem() {
-        return prepItem;
+    public Integer getPrepTime() {
+        return prepTime;
     }
 
-    public void setPrepItem(Integer prepItem) {
-        this.prepItem = prepItem;
+    public void setPrepTime(Integer prepTime) {
+        this.prepTime = prepTime;
     }
 
-    public Integer getCookItem() {
-        return cookItem;
+    public Integer getCookTime() {
+        return cookTime;
     }
 
-    public void setCookItem(Integer cookItem) {
-        this.cookItem = cookItem;
-    }
-
-    public Integer getServings() {
-        return servings;
-    }
-
-    public void setServings(Integer servings) {
-        this.servings = servings;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+    public void setCookTime(Integer cookTime) {
+        this.cookTime = cookTime;
     }
 
     public String getDirections() {
@@ -119,11 +119,9 @@ public class Recipe {
         this.directions = directions;
     }
 
-    public Difficulty getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
+    public Recipe addIngredient(Ingredient ingredient){
+        ingredient.setRecipe(this);
+        this.ingredients.add(ingredient);
+        return this;
     }
 }
